@@ -1,0 +1,182 @@
+<?php
+
+/**
+ * @file
+ * Contains syndicator.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+
+/**
+ * Implements hook_help().
+ */
+function syndicator_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the syndicator module.
+    case 'help.page.syndicator':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Syndicate content.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_token_info()
+ */
+function syndicator_token_info()
+{
+  $types['syndicator'] = [
+    'name' => t("Syndicator"),
+    'description' => t("Tokens for content syndication."),
+  ];
+
+  $config_entities = _syndicator_load_syndicators();
+  $syndicator_tokens = array();
+  // Get the machine names of all the syndicators
+  // for each of them, populate $syndicator_tokens['$machine_name']
+  foreach($config_entities as $config_entity) {
+    $name = $config_entity->get('id');
+    $label = $config_entity->get('label');
+    $syndicator_tokens[$name] = array(
+      'name' => $name,
+      'description' => 'Syndicated content ' . $label,
+    );
+  }
+
+  return [
+    'types' => $types,
+    'tokens' => [
+      'syndicator' => $syndicator_tokens,
+    ],
+  ];
+}
+
+/**
+ * Implements hook_tokens()
+ */
+function syndicator_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata)
+{
+  $replacements = array();
+
+  if ($type == 'syndicator') {
+    // Try to load the syndicator of machine_name $name
+    // If it exists, replace $replacements[$original] with the content of that syndicator
+    foreach ($tokens as $name => $original) {
+      $syndicator = \Drupal::entityTypeManager()->getStorage('syndicator')->load($name);
+      if (is_a($syndicator, 'Drupal\syndicator\Entity\Syndicator')) {
+        // Get the processor configured for this syndicator
+        $processor = $syndicator->getProcessor();
+        // Use it to render the syndicated content
+        $content = $processor->render($syndicator->getContent());
+        // Replace the token with the rendered content
+        $replacements[$original] = $content;
+
+        if (is_a($processor, 'Drupal\syndicator\Plugin\SyndicatorProcessorBase')) {
+          //ksm($processor->getPluginId());
+          $renderer = \Drupal::service('renderer');
+          $render_array = array(
+            '#theme' => 'syndicatorFoo',
+            '#type' => 'syndicator',
+            '#content' => $syndicator->get('content'),
+          );
+          //$content = $renderer->render($render_array);
+          //ksm($content);
+          //$replacements[$original] = \Drupal\Core\Render\Markup::create($syndicator->get('content'));
+        }
+      }
+    }
+  }
+  return $replacements;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * We implement hook_cron() to do "background" processing. It gets called every
+ * time the Drupal cron runs. We then decide what has to happen in response.
+ *
+ * In this example, we log a message after the time given in the state value
+ * 'cron_example.next_execution'. Then we update that variable to a time in the
+ * future.
+ */
+function syndicator_cron() {
+  $config_entities = _syndicator_load_syndicators();
+
+  // Iterate through all the syndicators. If it's time to update the content, do so.
+  foreach($config_entities as $config_entity) {
+    $ttl = $config_entity->get('ttl');
+    $last_updated = $config_entity->get('lastupdated');
+    $now = time();
+    $update_time = $last_updated + ($ttl * 60);
+    $log = $config_entity->get('label') . " cron:\n<pre>";
+    $log .= "\nTTL: " . $ttl;
+    $log .= "\nlast updated: " . $last_updated;
+    $log .= "\nlast updated: " . \Drupal::service('date.formatter')->format($last_updated, 'long');
+    $log .= "\ncurrent time: " . $now;
+    $log .= "\ncurrent time: " . \Drupal::service('date.formatter')->format($now, 'long');
+    $log .= "\ntime to update: " . $update_time;
+    $log .= "\ntime to update: " . \Drupal::service('date.formatter')->format($update_time, 'long');
+
+    if($ttl == 0) {
+      $log .= "\nTTL is zero - do not update this content.";
+    } else if($now > $update_time) {
+      $log .= "\nTime to update the syndicated content.";
+      $name = $config_entity->get('id');
+      $syndicator = \Drupal::entityTypeManager()->getStorage('syndicator')->load($name);
+      $syndicator = $syndicator->updateContent();
+      $status = $syndicator->save();
+    } else {
+      $log .= "\nNot yet time to update the syndicated content.";
+    }
+
+    $log .= "\n</pre>";
+    \Drupal::logger('syndicator')->notice($log);      
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function syndicator_theme() {
+  // Need to get all the SyndicatorProcessor plugins, and create a theme hook for each.
+  $hooks = array();
+
+  // Get the plugin type
+  $type = \Drupal::service('plugin.manager.syndicator_processor');
+  // Get a list of available plugins of that type
+  $plugin_definitions = $type->getDefinitions();
+
+  foreach($plugin_definitions as $processor) {
+    $hook = explode('\\', $processor['class']);
+    $hook = end($hook);
+    $hooks[$hook] = [
+      'variables' => [
+        'content' => NULL,
+        'vars' => NULL,
+      ],
+    ];
+  }
+  return $hooks;
+}
+
+/**
+ * Load all the syndicator config entities.
+ *
+ * Returns ImmutableConfig objects.
+ */
+function _syndicator_load_syndicators() {
+    // Get the names of all our syndicator config entities.
+    $names = \Drupal::entityQuery('syndicator')->execute();
+    foreach ($names as &$value) {
+      $config_names[] = 'syndicator.syndicator.' . $value;
+    }
+  
+    // Load the config entities.
+    $config_entities = \Drupal::configFactory()->loadMultiple($config_names);
+
+    return $config_entities;
+}

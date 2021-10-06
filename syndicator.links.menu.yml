@@ -1,0 +1,8 @@
+
+# Syndicator menu items definition
+entity.syndicator.collection:
+  title: 'Syndicator'
+  route_name: entity.syndicator.collection
+  description: 'List Syndicator (bundles)'
+  parent: system.admin_structure
+  weight: 99

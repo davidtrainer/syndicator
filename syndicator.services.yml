@@ -1,0 +1,4 @@
+services:
+  plugin.manager.syndicator_processor:
+    class: Drupal\syndicator\Plugin\SyndicatorProcessorManager
+    parent: default_plugin_manager

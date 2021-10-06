@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the syndicator render element.
+ *
+ * Available variables:
+ * - content: The content from the syndicator.
+ * - vars: An array of variables.
+ *
+ * @ingroup themeable
+ * @ingroup syndicator
+ */
+#}
+<h1>This is the Page List Processor</h1>
+<ol>
+{% for item in vars %}
+    <li>
+        <article>
+            <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+            <em>{{ item.updated }}</em>
+            <div>{{ item.body }}</div>
+        </article>
+    </li>
+{% endfor %}
+</ol>

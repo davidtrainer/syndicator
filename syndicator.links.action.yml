@@ -1,0 +1,5 @@
+entity.syndicator.add_form:
+  route_name: entity.syndicator.add_form
+  title: 'Add Syndicator'
+  appears_on:
+    - entity.syndicator.collection

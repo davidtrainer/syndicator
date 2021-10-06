@@ -1,0 +1,5 @@
+name: 'Syndicator'
+type: module
+description: 'Syndicate content.'
+core_version_requirement: ^9
+package: 'Custom'
