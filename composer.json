@@ -1,0 +1,13 @@
+{
+    "name": "syndicator",
+    "type": "drupal-module",
+    "description": "Syndicate content.",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/syndicator",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/syndicator",
+        "source": "http://cgit.drupalcode.org/syndicator"
+    }
+}
