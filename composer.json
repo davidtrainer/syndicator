@@ -1,13 +1,13 @@
 {
-    "name": "syndicator",
-    "type": "drupal-module",
+    "name": "davidtrainer/syndicator",
+    "type": "drupal-custom-module",
     "description": "Syndicate content.",
     "keywords": [
     ],
-    "homepage": "https://www.drupal.org/project/syndicator",
+    "homepage": "https://github.com/davidtrainer/syndicator",
     "minimum-stability": "dev",
     "support": {
-        "issues": "https://www.drupal.org/project/issues/syndicator",
-        "source": "http://cgit.drupalcode.org/syndicator"
+        "issues": "https://github.com/davidtrainer/syndicator/issues",
+        "source": "https://github.com/davidtrainer/syndicator"
     }
 }
