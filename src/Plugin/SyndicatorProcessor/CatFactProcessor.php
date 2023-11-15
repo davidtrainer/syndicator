@@ -5,29 +5,29 @@ namespace Drupal\syndicator\Plugin\SyndicatorProcessor;
 use Drupal\syndicator\Plugin\SyndicatorProcessorBase;
 
 /**
- * Provides a processor that processes the body field.
+ * A processor that processes cat facts.
  *
  * @SyndicatorProcessor(
- *   id = "better_body",
- *   description = "Better body processor.",
+ *   id = "catfact",
+ *   description = "Cat Fact processor.",
  * )
  */
-class BetterBodyProcessor extends SyndicatorProcessorBase {
+class CatFactProcessor extends SyndicatorProcessorBase {
 
   /**
    * {inheritdoc}
    */
   public function ingest($content) {
     $decoded = json_decode($content);
-    $mycontent = $decoded->data[0]->attributes->body->processed;
-    $mycontent = strip_tags($mycontent, ['p', 'a', 'br']);
-    return $mycontent;
+
+    return $decoded->fact;
   }
 
   /**
    * {inheritdoc}
    */
   public function render($content) {
+    // Just output the content
     return \Drupal\Core\Render\Markup::create($content);
   }
 

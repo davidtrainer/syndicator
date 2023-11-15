@@ -35,6 +35,7 @@ function syndicator_token_info()
   ];
 
   $config_entities = _syndicator_load_syndicators();
+  if (!is_array($config_entities)) return;
   $syndicator_tokens = array();
   // Get the machine names of all the syndicators
   // for each of them, populate $syndicator_tokens['$machine_name']
@@ -134,7 +135,7 @@ function syndicator_cron() {
     }
 
     $log .= "\n</pre>";
-    \Drupal::logger('syndicator')->notice($log);      
+    \Drupal::logger('syndicator')->notice($log);
   }
 }
 
@@ -174,7 +175,10 @@ function _syndicator_load_syndicators() {
     foreach ($names as &$value) {
       $config_names[] = 'syndicator.syndicator.' . $value;
     }
-  
+
+    if (!isset($config_names)) return;
+    if (!is_array($config_names)) return;
+
     // Load the config entities.
     $config_entities = \Drupal::configFactory()->loadMultiple($config_names);
 
