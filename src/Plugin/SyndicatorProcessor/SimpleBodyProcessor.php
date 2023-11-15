@@ -18,6 +18,8 @@ class SimpleBodyProcessor extends SyndicatorProcessorBase {
    * {inheritdoc}
    */
   public function ingest($content) {
+    \Drupal::logger('syndicator')->notice("Simple Body SyndicatorProcessor->ingest");
+
     $decoded = json_decode($content);
     return $decoded->data[0]->attributes->body->processed;
   }

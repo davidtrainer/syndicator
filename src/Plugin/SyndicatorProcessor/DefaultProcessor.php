@@ -19,6 +19,8 @@ class DefaultProcessor extends SyndicatorProcessorBase {
    * {inheritdoc}
    */
   public function ingest($content) {
+    \Drupal::logger('syndicator')->notice("Default SyndicatorProcessor->ingest");
+
     // By default, just return the content as a string
     return $content;
 
