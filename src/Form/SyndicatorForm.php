@@ -15,7 +15,6 @@ class SyndicatorForm extends EntityForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
-
     $syndicator = $this->entity;
     $form['label'] = [
       '#type' => 'textfield',
@@ -39,7 +38,7 @@ class SyndicatorForm extends EntityForm {
 
     $form['host'] = [
       '#type' => 'textfield',
-      '#default_value' => 'http://test.demo.dt8.xyz/',
+      '#default_value' => $syndicator->getHost(),
       '#required' => TRUE,
       '#description' => $this->t("Publisher hostname."),
     ];
@@ -75,15 +74,15 @@ class SyndicatorForm extends EntityForm {
 
     $form['last_updated'] = [
       '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#value' => "Last updated: " .
-        $syndicator->isNew() ? '' : \Drupal::service('date.formatter')->format($syndicator->getLastUpdated(), 'long'),
+      '#tag' => 'p',
+      '#value' => $syndicator->isNew() ? "" : "Last updated: " .
+        \Drupal::service('date.formatter')->format($syndicator->getLastUpdated()),
     ];
 
     $form['content'] = [
       '#type' => 'textarea',
       '#disabled' => FALSE,
-      '#value' => $syndicator->fetchContent(),
+      '#value' => $syndicator->isNew() ? "" : $syndicator->fetchContent(),
       '#description' => $this->t("Content fresh from the publisher."),
     ];
 

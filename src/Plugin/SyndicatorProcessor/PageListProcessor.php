@@ -18,6 +18,8 @@ class PageListProcessor extends SyndicatorProcessorBase {
    * {inheritdoc}
    */
   public function ingest($content) {
+    \Drupal::logger('syndicator')->notice("Page List SyndicatorProcessor");
+
     $decoded = json_decode($content);
     $data = $decoded->data;
     return json_encode($data);

@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the syndicator render element.
+ *
+ * Available variables:
+ * - content: The content from the syndicator.
+ * - vars: An array of variables.
+ *
+ * @ingroup themeable
+ * @ingroup syndicator
+ */
+#}
+<h3>BTC Price</h3>
+<ul class="btc-price">
+  {% for item in vars.rates %}
+    <li>
+      {{ item.symbol|raw }}
+      {{ item.rate }}
+    </li>
+  {% endfor %}
+</ul>
+<em>Updated {{ vars.time }}</em>

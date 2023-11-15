@@ -178,8 +178,8 @@ class Syndicator extends ConfigEntityBase implements SyndicatorInterface {
     try {
       $response = \Drupal::httpClient()->request('GET', $url, [
         'auth' => [
-          'demo', // This is a POC for demo purposes
-          'demo!' // This is a POC for demo purposes
+          'user', // This is a POC for demo purposes
+          'pass' // This is a POC for demo purposes
         ]
       ]);
       $data = $response->getBody()->getContents();
@@ -219,7 +219,7 @@ class Syndicator extends ConfigEntityBase implements SyndicatorInterface {
     \Drupal::logger('syndicator')->notice($log);
 
     $this->set('content', $content);
-    $this->set('lastupdated', REQUEST_TIME);
+    $this->set('lastupdated', \Drupal::time()->getRequestTime());
     return $this;
   }
 }
